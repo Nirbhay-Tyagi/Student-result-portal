@@ -4,7 +4,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(APP_DIR, "data.db")
+
+if os.environ.get("VERCEL"):
+    DB_PATH = "/tmp/data.db"
+else:
+    DB_PATH = os.path.join(APP_DIR, "data.db")
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "nirbhay_tyagi_2026_secure_key"
