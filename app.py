@@ -21,15 +21,11 @@ def get_db():
 
 
 def init_db():
-    if os.path.exists(DB_PATH):
-        return
-
     connection = get_db()
     cursor = connection.cursor()
 
-    cursor.executescript(
-        """
-        CREATE TABLE users (
+    cursor.executescript("""
+        CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
@@ -37,7 +33,7 @@ def init_db():
             full_name TEXT NOT NULL
         );
 
-        CREATE TABLE results (
+        CREATE TABLE IF NOT EXISTS results (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             student_id INTEGER NOT NULL,
             course TEXT NOT NULL,
@@ -47,18 +43,29 @@ def init_db():
             remarks TEXT,
             FOREIGN KEY(student_id) REFERENCES users(id)
         );
-        """
-    )
+    """)
 
-    cursor.execute(
-        "INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)",
-        ("admin", generate_password_hash("admin123"), "admin", "Campus Admin"),
-    )
+    admin = cursor.execute(
+        "SELECT * FROM users WHERE username = ?",
+        ("admin",)
+    ).fetchone()
 
-    cursor.execute(
-        "INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)",
-        ("student", generate_password_hash("student123"), "student", "Riya Sharma"),
-    )
+    if not admin:
+        cursor.execute(
+            "INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)",
+            ("admin", generate_password_hash("admin123"), "admin", "Campus Admin")
+        )
+
+    student = cursor.execute(
+        "SELECT * FROM users WHERE username = ?",
+        ("student",)
+    ).fetchone()
+
+    if not student:
+        cursor.execute(
+            "INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)",
+            ("student", generate_password_hash("student123"), "student", "Riya Sharma")
+        )
 
     connection.commit()
     connection.close()
@@ -71,13 +78,13 @@ def setup_database():
 def compute_grade(marks):
     if marks >= 90:
         return "A+"
-    if marks >= 80:
+    elif marks >= 80:
         return "A"
-    if marks >= 70:
+    elif marks >= 70:
         return "B+"
-    if marks >= 60:
+    elif marks >= 60:
         return "B"
-    if marks >= 50:
+    elif marks >= 50:
         return "C"
     return "F"
 
@@ -95,12 +102,13 @@ def login():
     setup_database()
 
     if request.method == "POST":
-        username = request.form["username"].strip()
-        password = request.form["password"]
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
 
         connection = get_db()
         user = connection.execute(
-            "SELECT * FROM users WHERE username = ?", (username,)
+            "SELECT * FROM users WHERE username = ?",
+            (username,)
         ).fetchone()
         connection.close()
 
@@ -126,21 +134,21 @@ def dashboard():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
+    connection = get_db()
+
     if session.get("role") == "admin":
-        connection = get_db()
         students = connection.execute(
             "SELECT id, username, full_name FROM users WHERE role = 'student'"
         ).fetchall()
         connection.close()
         return render_template("admin_dashboard.html", students=students)
 
-    connection = get_db()
     results = connection.execute(
         "SELECT * FROM results WHERE student_id = ? ORDER BY semester, course",
-        (session["user_id"],),
+        (session["user_id"],)
     ).fetchall()
-    connection.close()
 
+    connection.close()
     return render_template("student_dashboard.html", results=results)
 
 
@@ -162,21 +170,18 @@ def upload_result():
         remarks = request.form.get("remarks", "").strip()
 
         if not student_id or not course or not semester or not marks.isdigit():
-            flash("Please fill in all required fields with valid values.", "error")
+            flash("Please fill all required fields correctly.", "error")
             connection.close()
             return render_template("upload_results.html", students=students)
 
-        marks_value = int(marks)
-        grade = compute_grade(marks_value)
+        marks = int(marks)
+        grade = compute_grade(marks)
 
-        connection.execute(
-            """
+        connection.execute("""
             INSERT INTO results
             (student_id, course, semester, marks, grade, remarks)
             VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (student_id, course, semester, marks_value, grade, remarks),
-        )
+        """, (student_id, course, semester, marks, grade, remarks))
 
         connection.commit()
         connection.close()
@@ -195,24 +200,18 @@ def student_profile(student_id):
 
     connection = get_db()
 
-    student = connection.execute(
-        """
+    student = connection.execute("""
         SELECT id, username, full_name
         FROM users
         WHERE id = ? AND role = 'student'
-        """,
-        (student_id,),
-    ).fetchone()
+    """, (student_id,)).fetchone()
 
-    results = connection.execute(
-        """
+    results = connection.execute("""
         SELECT *
         FROM results
         WHERE student_id = ?
         ORDER BY semester, course
-        """,
-        (student_id,),
-    ).fetchall()
+    """, (student_id,)).fetchall()
 
     connection.close()
 
