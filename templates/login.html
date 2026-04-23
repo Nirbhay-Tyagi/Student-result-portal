@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}Login | Student Result System{% endblock %}
+
+{% block content %}
+<div class="panel form-panel">
+    <div class="panel-heading">
+        <h2>Welcome Back</h2>
+        <p>Sign in to access your results or manage uploads.</p>
+    </div>
+    <form action="{{ url_for('login') }}" method="POST" class="form-grid">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="admin or student" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter password" required />
+
+        <button type="submit" class="btn-primary">Login</button>
+    </form>
+    <p class="hint">Default accounts: admin/admin123 · student/student123</p>
+</div>
+{% endblock %}

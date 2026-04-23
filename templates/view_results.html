@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}Student Results | Student Result System{% endblock %}
+
+{% block content %}
+<div class="panel panel-full">
+    <div class="panel-heading">
+        <h2>{{ student.full_name }}</h2>
+        <p>Results for {{ student.username }}.</p>
+    </div>
+
+    {% if results %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.course }}</td>
+                    <td>{{ result.semester }}</td>
+                    <td>{{ result.marks }}</td>
+                    <td>{{ result.grade }}</td>
+                    <td>{{ result.remarks or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No results have been uploaded for this student yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

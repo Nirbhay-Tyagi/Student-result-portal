@@ -1,0 +1,7 @@
+- Project type: Flask web application
+- Entry file: `app.py`
+- Python dependencies: `requirements.txt`
+- Templates: `templates/`
+- Static assets: `static/css/style.css`
+- Database: `data.db` created automatically on first run
+- Default users: admin/admin123, student/student123

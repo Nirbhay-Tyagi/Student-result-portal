@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Dashboard | Student Result System{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <section class="panel summary-card">
+        <h2>Admin Dashboard</h2>
+        <p>Use the controls below to manage student results with confidence.</p>
+        <div class="summary-list">
+            <div>
+                <strong>{{ students|length }}</strong>
+                <span>students registered</span>
+            </div>
+        </div>
+        <a class="btn-secondary" href="{{ url_for('upload_result') }}">Upload New Result</a>
+    </section>
+
+    <section class="panel table-card">
+        <h3>Student Records</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.full_name }}</td>
+                        <td>{{ student.username }}</td>
+                        <td><a class="link-btn" href="{{ url_for('student_profile', student_id=student.id) }}">View results</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}Upload Result | Student Result System{% endblock %}
+
+{% block content %}
+<div class="panel form-panel">
+    <div class="panel-heading">
+        <h2>Upload Result</h2>
+        <p>Add a new scorecard for a student with semester details and grade.</p>
+    </div>
+    <form action="{{ url_for('upload_result') }}" method="POST" class="form-grid">
+        <label for="student_id">Student</label>
+        <select id="student_id" name="student_id" required>
+            <option value="">Select student</option>
+            {% for student in students %}
+            <option value="{{ student.id }}">{{ student.full_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="course">Course</label>
+        <input id="course" name="course" type="text" placeholder="Example: Database Systems" required />
+
+        <label for="semester">Semester</label>
+        <input id="semester" name="semester" type="text" placeholder="Example: Spring 2026" required />
+
+        <label for="marks">Marks</label>
+        <input id="marks" name="marks" type="number" min="0" max="100" placeholder="0 - 100" required />
+
+        <label for="remarks">Remarks</label>
+        <textarea id="remarks" name="remarks" rows="3" placeholder="Optional comments"></textarea>
+
+        <button type="submit" class="btn-primary">Submit Result</button>
+    </form>
+</div>
+{% endblock %}

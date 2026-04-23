@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Student Result System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark">SRM</span>
+                <div>
+                    <h1>Student Result Management</h1>
+                    <p>Secure, clear, and elegant result access</p>
+                </div>
+            </div>
+            {% if session.user_id %}
+            <div class="topbar-actions">
+                <span class="welcome">Hi, {{ session.full_name }}</span>
+                <a class="btn-out" href="{{ url_for('logout') }}">Logout</a>
+            </div>
+            {% endif %}
+        </header>
+
+        <main class="content-shell">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="toast-list">
+                {% for category, message in messages %}
+                <div class="toast toast-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="footer">
+            <p>Built for a polished college result experience.</p>
+        </footer>
+    </div>
+</body>
+</html>
