@@ -78,13 +78,9 @@ def compute_grade(marks):
     return "F"
 
 
-# Run database setup on startup
-with app.app_context():
-    setup_database()
-
-
 @app.route("/")
 def home():
+    setup_database()
     if session.get("user_id"):
         return redirect(url_for("dashboard"))
     return redirect(url_for("login"))
@@ -92,6 +88,8 @@ def home():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    setup_database()
+
     if request.method == "POST":
         username = request.form["username"].strip()
         password = request.form["password"]
@@ -226,6 +224,5 @@ def student_profile(student_id):
 
 
 if __name__ == "__main__":
+    setup_database()
     app.run(debug=False)
-
-app = app    
